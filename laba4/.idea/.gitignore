@@ -1,0 +1,9 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/../../../../:\JavaProg\laba4\.idea/dataSources/
+/dataSources.local.xml
+/*.sqlite
+# Editor-based HTTP Client requests
+/httpRequests/

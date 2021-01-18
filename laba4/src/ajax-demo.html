@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>NodeJS+AJAX</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<p>
+<h1>AJAX+SQLite</h1>
+<form>
+    <label>
+        Filter
+        <input id="filter_input" type="text">
+    </label>
+</form>
+<button onclick="onFilterClicked()">Filter</button>
+<div id="content_container"></div>
+</body>
+<script type="text/javascript">
+    const contentContainer = document.getElementById("content_container");
+    const filterInput = document.getElementById("filter_input");
+    filterInput.addEventListener("input", onFilterClicked)
+
+    function onFilterClicked() {
+        const text = filterInput.value;
+        console.log("send request to filter this: " + text);
+
+        let url = "/data";
+
+        if (text) {
+            url += "?filter=" + text;
+        }
+
+        makeRequest(url, (error, content) => handleMusics(error, content))
+    }
+
+    function handleMusics(error, content) {
+        console.log("error: " + error);
+        console.log("content: " + content);
+
+        // TODO add error handling
+        const Music = JSON.parse(content);
+
+        if (Music.length == 0) {
+            console.log("Received empty music list. Nothing to show, sorry!");
+            contentContainer.innerHTML = "<span style='color: red'>No results!</span>";
+            return;
+        }
+
+        const renderedMusics = Music
+            .map(track => `<tr><td>${track.track}</td><td>${track.singer}</td><td>${track.album}</td><td>${(track.length-track.length%60)/60}:${track.length%60}</td></tr>`)
+            .reduce((result, track) => result + track);
+        contentContainer.innerHTML = `
+                <table>
+                    ${renderedMusics}
+                </table>
+                `;
+    }
+
+    function makeRequest(url, callback) {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = () => {
+            if (request.readyState === 4) {
+                if (request.status === 200) {
+                    callback(undefined, request.responseText);
+                } else {
+                    callback(new Error(request.status));
+                }
+            }
+        };
+        request.open("POST", url, true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        request.send();
+    }
+</script>
+</html>
